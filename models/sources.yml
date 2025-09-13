@@ -1,0 +1,55 @@
+version: 2
+
+sources:
+  - name: demo
+    description: "Raw demo data in Snowflake"
+    database: DEMO          # Snowflake objects are uppercase by default
+    schema: DEMO_SCHEMA
+    loader: "fivetran | batch"
+
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+
+    freshness:
+      warn_after: {count: 2, period: hour}
+      error_after: {count: 6, period: hour}
+
+    tables:
+      - name: bike
+        description: "Bike trips / rides"
+        loaded_at_field: ingestion_ts   # change if your timestamp column is different
+        columns:
+          - name: ride_id
+            description: "Primary key"
+            tests: [not_null, unique]
+          - name: ingestion_ts
+            description: "Ingestion timestamp"
+            tests: [not_null]
+          - name: started_at
+            description: "Trip start time"
+          - name: ended_at
+            description: "Trip end time"
+          - name: start_station_id
+            description: "Start station id"
+          - name: end_station_id
+            description: "End station id"
+
+      - name: weather
+        description: "Hourly weather readings"
+        loaded_at_field: ingestion_ts   # change if different
+        columns:
+          - name: weather_id
+            description: "Primary key"
+            tests: [not_null, unique]
+          - name: reading_ts
+            description: "Reading timestamp"
+            tests: [not_null]
+          - name: station_id
+            description: "Weather station id"
+          - name: temp_f
+            description: "Temperature (F)"
+          - name: ingestion_ts
+            description: "Ingestion timestamp"
+            tests: [not_null]
